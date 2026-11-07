@@ -18,7 +18,7 @@ window.DATABASE = [
   {
     sha256: "aae5a72903d98aafeee0cc1a3417ddaf21bf934d8c66174e9b7fc96c60121f03",
     name: "Multi-threat malware",
-    labels: ["Trojan", "Stealer", "Clipper", "Keylogger"]
+    labels: ["Trojan", "Keylogger", "Stealer", "Clipper"]
   },
   {
     // EICAR с переводом строки CRLF (Windows)

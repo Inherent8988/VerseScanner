@@ -59,17 +59,25 @@ async function sigCheck(file){
 
 // ---------- Вывод ----------
 const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-function card(name, hash, hit, isFolder){
+function card(name, hash, hit, isFolder, label){
   const el = document.createElement("div");
   el.className = "res" + (hit ? " bad" : "");
   let body;
   if(hit){
     body = `<div class="type">Type: Virus Detected</div>` +
-      (hit.labels.length ? `<ul class="labels">${hit.labels.map(l=>`<li>${esc(l)}</li>`).join("")}</ul>` : "") +
+      (label ? `<ul class="labels"><li>${esc(label)}</li></ul>` : "") +
       `<div class="hash">Detection: ${esc(hit.name)}</div>`;
   } else body = `<div class="type">Угроз не найдено</div>`;
   el.innerHTML = `<div class="name">${isFolder?"Папка":"Файл"}: ${esc(name)}</div>${body}<div class="hash">SHA-256: ${hash}</div>`;
   return el;
+}
+
+// Одна карточка на каждую угрозу (по числу меток)
+const threatCount = hit => hit ? Math.max(1, hit.labels.length) : 0;
+function cards(name, hash, hit, isFolder){
+  if(!hit) return [card(name, hash, null, isFolder)];
+  if(!hit.labels.length) return [card(name, hash, hit, isFolder)];
+  return hit.labels.map(l => card(name, hash, hit, isFolder, l));
 }
 
 // ---------- Сканирование ----------
@@ -84,14 +92,14 @@ async function scan(files){
     const h = await sha256File(files[i]);
     rows.push([rel(files[i]), h]);
     const hit = DB.get(h) || await sigCheck(files[i]);
-    if(hit) bad++;
-    results.appendChild(card(rel(files[i]), h, hit, false));
+    bad += threatCount(hit);
+    cards(rel(files[i]), h, hit, false).forEach(c => results.appendChild(c));
   }
   // Хэш всей папки: SHA-256 от отсортированного списка "путь:хэш"
   if(root){
     const fh = await sha256Text(rows.slice().sort((a,b)=>a[0]<b[0]?-1:1).map(r=>r[0]+":"+r[1]).join("\n"));
-    const hit = DB.get(fh); if(hit) bad++;
-    results.prepend(card(root, fh, hit, true));
+    const hit = DB.get(fh); bad += threatCount(hit);
+    results.prepend(...cards(root, fh, hit, true));
   }
   progress.textContent = "";
   summary.style.color = bad ? "var(--bad)" : "var(--ok)";
