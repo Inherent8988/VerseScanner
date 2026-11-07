@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InherentScanner</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>InherentScanner</h1>
+  <p class="sub">Проверка файлов и папок по хэшу SHA-256. Файлы никуда не отправляются — всё считается в твоём браузере.</p>
+
+  <div id="drop">
+    <div>Перетащи сюда файл или папку</div>
+    <div class="btns">
+      <button id="bFile">Выбрать файл</button>
+      <button id="bDir">Выбрать папку</button>
+    </div>
+    <input type="file" id="fFile" multiple>
+    <input type="file" id="fDir" webkitdirectory>
+  </div>
+
+  <div id="progress"></div>
+  <div id="summary"></div>
+  <div id="results"></div>
+
+  <p class="note">База хэшей лежит в database.js. Сейчас в ней: EICAR и один тестовый вирус.</p>
+</main>
+<script src="database.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
